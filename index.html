@@ -15,33 +15,29 @@
             font-family: 'Georgia', 'Times New Roman', serif;
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
             color: #ecf0f1;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
         }
 
         .presentation-container {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100vh;
             position: relative;
         }
 
         .slide {
-            display: none;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             max-width: 900px;
             margin: 0 auto;
             padding: 50px;
             text-align: left;
-            animation: fadeIn 0.5s ease-in-out;
         }
 
         .slide.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            display: flex;
         }
 
         h1 {
@@ -118,38 +114,6 @@
             font-size: 1.2rem;
         }
 
-        .navigation {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-        }
-
-        .nav-btn {
-            background: rgba(52, 73, 94, 0.8);
-            color: #ecf0f1;
-            border: 1px solid #95a5a6;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-family: 'Georgia', serif;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .nav-btn:hover {
-            background: rgba(52, 73, 94, 0.9);
-            border-color: #d4af37;
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
         .slide-counter {
             position: fixed;
             top: 30px;
@@ -160,6 +124,7 @@
             font-family: 'Georgia', serif;
             color: #95a5a6;
             backdrop-filter: blur(5px);
+            z-index: 100;
         }
 
         .intro-slide {
@@ -293,7 +258,7 @@ if (password !== "123$$$radio") {
 </script>
     <div class="presentation-container">
         <div class="slide-counter">
-            <span id="currentSlide">1</span> of <span id="totalSlides">9</span>
+            <span id="currentSlide">1</span> of <span id="totalSlides">7</span>
         </div>
 
         <!-- Slide 1: Title -->
@@ -479,47 +444,36 @@ if (password !== "123$$$radio") {
                 <li><span class="emphasis">RAG-as-a-Service:</span> Agreements with AI companies for access to curated, authoritative local content</li>
             </ul>
         </div>
+    </div>
 
     <script>
-        let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const totalSlides = slides.length;
+        const slideCounter = document.getElementById('currentSlide');
         
         document.getElementById('totalSlides').textContent = totalSlides;
 
-        function showSlide(n) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            slides[n].classList.add('active');
+        // Update slide counter based on scroll position
+        function updateSlideCounter() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
             
-            document.getElementById('currentSlide').textContent = n + 1;
-            document.getElementById('prevBtn').disabled = n === 0;
-            document.getElementById('nextBtn').disabled = n === totalSlides - 1;
+            slides.forEach((slide, index) => {
+                const slideTop = slide.offsetTop;
+                const slideBottom = slideTop + slide.offsetHeight;
+                const scrollMiddle = scrollPosition + (windowHeight / 2);
+                
+                if (scrollMiddle >= slideTop && scrollMiddle < slideBottom) {
+                    slideCounter.textContent = index + 1;
+                }
+            });
         }
 
-        function changeSlide(direction) {
-            currentSlide += direction;
-            if (currentSlide < 0) currentSlide = 0;
-            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
-            showSlide(currentSlide);
-        }
-
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                changeSlide(-1);
-            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
-                changeSlide(1);
-            } else if (e.key === 'Home') {
-                currentSlide = 0;
-                showSlide(currentSlide);
-            } else if (e.key === 'End') {
-                currentSlide = totalSlides - 1;
-                showSlide(currentSlide);
-            }
-        });
-
+        // Update counter on scroll
+        window.addEventListener('scroll', updateSlideCounter);
+        
         // Initialize
-        showSlide(0);
+        updateSlideCounter();
     </script>
 </body>
 </html>
